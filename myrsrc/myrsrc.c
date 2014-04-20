@@ -7,13 +7,14 @@ static void myrsrc_descriptor_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC) //unset
 	FILE *fp = (FILE *)rsrc->ptr;
 	fclose(fp);
 }
-ZEND_MINIT_FUNCTION(myrsrc_minit)
+ZEND_MINIT_FUNCTION(myrsrc)
 {
 	myrsrc_descriptor = zend_register_list_destructors_ex(
 			myrsrc_descriptor_dtor,
 			NULL,
 			MYRSRC_DESCRIPTOR_RES_NAME,
 			module_number);
+	php_printf("MINIT\n");
 	return SUCCESS;
 }
 ZEND_FUNCTION(myrsrc_fopen)
@@ -71,7 +72,7 @@ zend_module_entry myrsrc_module_entry = {
 #endif
 	"myrsrc",
 	myrsrc_functions,
-	ZEND_MINIT(myrsrc_minit),
+	ZEND_MINIT(myrsrc),
 	NULL,
 	NULL,
 	NULL,
