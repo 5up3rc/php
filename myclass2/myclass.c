@@ -27,11 +27,18 @@ ZEND_METHOD(myclass_parent, say)
 {
 	php_printf("Saying\n");
 }
-ZEND_METHOD(myclass_child, saywhat)
+ZEND_METHOD(myclass_child, call_say)
 {
-	zval *this;
-	this = getThis();
-	zend_call_method_with_0_params(&this, ce_myclass_child, NULL, "say", NULL);
+	zval *this, *retval, *say;
+	MAKE_STD_ZVAL(this);
+	MAKE_STD_ZVAL(retval);
+	MAKE_STD_ZVAL(say);
+	ZVAL_STRINGL(say, "say", sizeof("say") - 1, 1);
+	object_init_ex(this, ce_myclass_child); //实例化对象
+	call_user_function(NULL, &this, say, retval, 0, NULL TSRMLS_CC); //调用对象方法
+	zval_ptr_dtor(&this);
+	zval_ptr_dtor(&retval);
+	zval_ptr_dtor(&say);
 }
 static zend_function_entry myinterface_methods[] = {
 	ZEND_ABSTRACT_ME(myinterface, say, NULL)
@@ -42,7 +49,7 @@ static zend_function_entry myclass_parent_methods[] = {
 	{NULL, NULL, NULL}
 };
 static zend_function_entry myclass_child_methods[] = {
-	ZEND_ME(myclass_child, saywhat, NULL, ZEND_ACC_PUBLIC)
+	ZEND_ME(myclass_child, call_say, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
 
