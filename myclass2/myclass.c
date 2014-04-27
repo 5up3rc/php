@@ -27,6 +27,28 @@ ZEND_METHOD(myclass_parent, say)
 {
 	php_printf("Saying\n");
 }
+ZEND_METHOD(myclass_child, __construct)
+{
+	zval *prop1, *prop2;
+	zend_class_entry *ce;
+	ce = Z_OBJCE_P(getThis());
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &prop1, &prop2) == FAILURE) {
+		php_printf("Parameter Error\n");
+		RETURN_NULL();
+	}
+
+	zend_update_property(ce, getThis(), "prop1", sizeof("prop1") - 1, prop1 TSRMLS_CC); //更新对象属性
+	zend_update_static_property(ce, "prop2", sizeof("prop2") - 1, prop2 TSRMLS_CC); //更新类静态属性(与具体对象无关)
+
+	prop1 = NULL;
+	prop2 = NULL;
+
+	prop1 = zend_read_property(ce, getThis(), "prop1", sizeof("prop1") - 1, 0 TSRMLS_DC);
+	php_var_dump(&prop1, 1 TSRMLS_CC);
+
+	prop2 = zend_read_static_property(ce, "prop2", sizeof("prop2") - 1, 0 TSRMLS_DC);
+	php_var_dump(&prop2, 1 TSRMLS_CC);
+}
 ZEND_METHOD(myclass_child, call_say)
 {
 	zval *this, *retval, *say;
@@ -49,6 +71,7 @@ static zend_function_entry myclass_parent_methods[] = {
 	{NULL, NULL, NULL}
 };
 static zend_function_entry myclass_child_methods[] = {
+	ZEND_ME(myclass_child, __construct, NULL, ZEND_ACC_PUBLIC|ZEND_ACC_CTOR)
 	ZEND_ME(myclass_child, call_say, NULL, ZEND_ACC_PUBLIC)
 	{NULL, NULL, NULL}
 };
@@ -67,6 +90,8 @@ ZEND_MINIT_FUNCTION(myclass)
 	INIT_CLASS_ENTRY(ce_c, "myclass_child", myclass_child_methods);
 	ce_myclass_child = zend_register_internal_class_ex(&ce_c, ce_myclass_parent, "myclass_parent" TSRMLS_CC); //继承父类
 	ce_myclass_child->ce_flags |= ZEND_ACC_FINAL_CLASS; //标志为final类，不允许再继承
+	zend_declare_property_null(ce_myclass_child, "prop1", strlen("prop1"), ZEND_ACC_PUBLIC TSRMLS_CC); //定义属性
+	zend_declare_property_null(ce_myclass_child, "prop2", strlen("prop2"), ZEND_ACC_PUBLIC|ZEND_ACC_STATIC); //定义静态属性
 
 	return SUCCESS;
 }

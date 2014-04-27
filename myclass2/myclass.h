@@ -1,4 +1,6 @@
 //类继承和接口实现
+//实例化对象和调用对象方法
+//定义和读写对象属性和类静态属性
 #ifndef MYCLASS_H
 #define MYCLASS_H
 
