@@ -1,0 +1,29 @@
+#include "myconst.h"
+
+zend_module_entry myconst_module_entry = {
+#if ZEND_MODULE_API_NO >= 20010901
+	STANDARD_MODULE_HEADER,
+#endif
+	"myconst",
+	NULL,
+	ZEND_MINIT(myconst),
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+#if ZEND_MODULE_API_NO >= 20010901
+	MYCONST_EXT_VER,
+#endif
+	STANDARD_MODULE_PROPERTIES
+};
+
+#ifdef COMPILE_DL_MYCONST
+ZEND_GET_MODULE(myconst)
+#endif
+
+ZEND_MINIT_FUNCTION(myconst)
+{
+	REGISTER_STRING_CONSTANT("MYCONST_EXT_VER", MYCONST_EXT_VER, CONST_CS|CONST_PERSISTENT); //定义一个字符串常量
+	return SUCCESS;
+}
+
